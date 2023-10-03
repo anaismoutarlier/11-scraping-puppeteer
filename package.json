@@ -1,0 +1,14 @@
+{
+  "name": "11-scraping-puppeteer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Anais Moutarlier <anaismoutarlier@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "moment": "^2.29.4",
+    "puppeteer": "^21.3.6"
+  }
+}
