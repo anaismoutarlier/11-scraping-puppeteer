@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 function cron() {
   const job = new CronJob(
-    "* 31 19 * * *",
+    "0 45 19 * * *",
     () => scrap(),
     null,
     true,

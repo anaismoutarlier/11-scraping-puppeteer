@@ -5,13 +5,15 @@ const fs = require("fs").promises;
 const scrap = async () => {
   try {
     var browser = await puppeteer.launch({ headless: false });
+    console.log("Browser created.");
     const page = await browser.newPage();
-    // await page.setRequestInterception(true);
-    // page.on("request", request => {
-    //   if (["stylesheet", "image", "font"].includes(request.resourceType()))
-    //     request.abort();
-    //   else request.continue();
-    // });
+    console.log("Page created.");
+    await page.setRequestInterception(true);
+    page.on("request", request => {
+      if (["stylesheet", "image", "font"].includes(request.resourceType()))
+        request.abort();
+      else request.continue();
+    });
 
     await page.goto(
       "https://www.welcometothejungle.com/fr/jobs?refinementList%5Boffices.country_code%5D%5B%5D=FR&refinementList%5Bcontract_type%5D%5B%5D=FULL_TIME&refinementList%5Bcontract_type%5D%5B%5D=INTERNSHIP&refinementList%5Bcontract_type%5D%5B%5D=TEMPORARY&query=javascript%20developer&page=1&sortBy=mostRecent",
@@ -20,18 +22,18 @@ const scrap = async () => {
       }
     );
 
-    // const totalJobs = await page.$eval(
-    //   "div[data-testid='jobs-search-results-count']",
-    //   el => {
-    //     if (el) {
-    //       return Number(el.textContent.trim());
-    //     }
-    //     return null;
-    //   }
-    // );
+    const totalJobs = await page.$eval(
+      "div[data-testid='jobs-search-results-count']",
+      el => {
+        if (el) {
+          return Number(el.textContent.trim());
+        }
+        return null;
+      }
+    );
+    console.log(`Total jobs found: ${totalJobs}.`);
 
     const limitDate = moment().subtract(1, "days").toDate();
-    console.log(limitDate);
 
     const jobList = await page.$$eval(
       "li.ais-Hits-list-item",
@@ -51,7 +53,7 @@ const scrap = async () => {
       },
       limitDate
     );
-    console.log("Found job list", jobList.length);
+    console.log("Filtered jobs found: ", jobList.length);
     for (const job of jobList) {
       await page.goto(job.url, { waitUntil: "networkidle0" });
 
@@ -84,8 +86,7 @@ const scrap = async () => {
       `./data/jobs-${Date.now()}.json`,
       JSON.stringify(jobList, null, 2)
     );
-    // console.log(totalJobs);
-    // console.log(jobList.length);
+    console.log("Results written to file.");
   } catch (error) {
     console.error(error);
   } finally {
